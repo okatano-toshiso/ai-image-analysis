@@ -137,7 +137,7 @@ MySQLを使用する場合は `init_db.sql` を参照してください。
 ### 1. リポジトリのクローン
 
 ```bash
-git clone <リポジトリURL>
+git clone https://github.com/okatano-toshiso/ai-image-analysis.git
 cd ai-image-analysis
 ```
 
