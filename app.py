@@ -41,7 +41,7 @@ def mock_ai_api(image_path: str) -> dict:
     if random.random() < 0.8:
         return {
             "is_success": True,
-            "message": "is_success",
+            "message": "success",
             "estimated_data": {
                 "class_label": random.randint(0, 9),
                 "confidence": round(random.uniform(0.5, 0.9999), 4)
