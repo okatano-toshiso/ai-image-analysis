@@ -1,7 +1,8 @@
 """AI Analysis API Client - Flask Application."""
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify
 from flask.views import MethodView
+from flask_cors import CORS
 from models.ai_analysis_log import db
 from services.mock_ai_client import MockAiClient
 from services.analysis_service import AnalysisService
@@ -9,6 +10,7 @@ from repositories.ai_analysis_log_repository import AiAnalysisLogRepository
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.join(BASE_DIR, 'ai_analysis.db')}"
@@ -19,15 +21,6 @@ db.init_app(app)
 _repo = AiAnalysisLogRepository()
 _client = MockAiClient()
 _service = AnalysisService(client=_client, repository=_repo)
-
-
-class IndexView(MethodView):
-    """View for the top page displaying the latest analysis logs."""
-
-    def get(self):
-        """Render the index page with the latest 50 log entries."""
-        logs = _repo.find_latest()
-        return render_template("index.html", logs=logs)
 
 
 class AnalyzeView(MethodView):
@@ -49,7 +42,6 @@ class LogsView(MethodView):
         return jsonify([log.to_dict() for log in logs])
 
 
-app.add_url_rule("/", view_func=IndexView.as_view("index"))
 app.add_url_rule("/analyze", view_func=AnalyzeView.as_view("analyze"))
 app.add_url_rule("/logs", view_func=LogsView.as_view("logs"))
 
