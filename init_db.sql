@@ -1,9 +1,7 @@
--- データベース作成
 CREATE DATABASE IF NOT EXISTS ai_analysis_db CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 USE ai_analysis_db;
 
--- テーブル作成（課題仕様のCREATE文）
 CREATE TABLE IF NOT EXISTS `ai_analysis_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `image_path` varchar(255) DEFAULT NULL,
