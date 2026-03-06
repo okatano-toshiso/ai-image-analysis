@@ -32,7 +32,7 @@ def mock_ai_api(image_path: str) -> dict:
     """
     if not image_path or not image_path.strip():
         return {
-            "success": False,
+            "is_success": False,
             "message": "Error:E50012",
             "estimated_data": {}
         }
@@ -40,16 +40,16 @@ def mock_ai_api(image_path: str) -> dict:
     # 80%の確率で成功レスポンス
     if random.random() < 0.8:
         return {
-            "success": True,
-            "message": "success",
+            "is_success": True,
+            "message": "is_success",
             "estimated_data": {
-                "class": random.randint(0, 9),
+                "class_label": random.randint(0, 9),
                 "confidence": round(random.uniform(0.5, 0.9999), 4)
             }
         }
     else:
         return {
-            "success": False,
+            "is_success": False,
             "message": "Error:E50012",
             "estimated_data": {}
         }
