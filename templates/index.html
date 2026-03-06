@@ -339,12 +339,12 @@
             <tr>
               <td>{{ log.id }}</td>
               <td>
-                <span class="tag {{ 'ok' if log.success else 'ng' }}">
-                  {{ 'SUCCESS' if log.success else 'FAILURE' }}
+                <span class="tag {{ 'ok' if log.is_success else 'ng' }}">
+                  {{ 'SUCCESS' if log.is_success else 'FAILURE' }}
                 </span>
               </td>
               <td class="path-cell" title="{{ log.image_path }}">{{ log.image_path or '-' }}</td>
-              <td>{{ log.class_ if log.class_ is not none else '-' }}</td>
+              <td>{{ log.class_label if log.class_label is not none else '-' }}</td>
               <td>
                 {% if log.confidence is not none %}
                 <div class="confidence-bar-wrap">
@@ -404,7 +404,7 @@ function showResult(data) {
   const msg = document.getElementById('result-message');
   const grid = document.getElementById('result-grid');
 
-  const success = data.api_response.success;
+  const success = data.api_response.is_success;
   const log = data.log;
 
   box.style.display = 'block';
@@ -465,7 +465,7 @@ async function refreshLogs() {
 
     return `<tr>
       <td>${log.id}</td>
-      <td><span class="tag ${log.success ? 'ok' : 'ng'}">${log.success ? 'SUCCESS' : 'FAILURE'}</span></td>
+      <td><span class="tag ${log.is_success ? 'ok' : 'ng'}">${log.is_success ? 'SUCCESS' : 'FAILURE'}</span></td>
       <td class="path-cell" title="${log.image_path || ''}">${log.image_path || '-'}</td>
       <td>${log.class != null ? log.class : '-'}</td>
       <td>${confHtml}</td>

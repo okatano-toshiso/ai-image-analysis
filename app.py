@@ -4,7 +4,7 @@ AI Analysis API Client - Flask Application
 """
 
 from flask import Flask, render_template, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from models.ai_analysis_log import db, AiAnalysisLog
 from datetime import datetime
 import random
 import os
@@ -18,35 +18,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.join(BASE_DIR, 'ai_analysis.db')}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db = SQLAlchemy(app)
-
-
-# -----------------------------------------------
-# Model
-# -----------------------------------------------
-class AiAnalysisLog(db.Model):
-    __tablename__ = "ai_analysis_log"
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    image_path = db.Column(db.String(255), nullable=True)
-    success = db.Column(db.Boolean, nullable=False)
-    message = db.Column(db.String(255), nullable=True)
-    class_ = db.Column("class", db.Integer, nullable=True)
-    confidence = db.Column(db.Numeric(5, 4), nullable=True)
-    request_timestamp = db.Column(db.DateTime, nullable=True)
-    response_timestamp = db.Column(db.DateTime, nullable=True)
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "image_path": self.image_path,
-            "success": self.success,
-            "message": self.message,
-            "class": self.class_,
-            "confidence": float(self.confidence) if self.confidence is not None else None,
-            "request_timestamp": self.request_timestamp.isoformat() if self.request_timestamp else None,
-            "response_timestamp": self.response_timestamp.isoformat() if self.response_timestamp else None,
-        }
+db.init_app(app)
 
 
 # -----------------------------------------------
@@ -60,7 +32,7 @@ def mock_ai_api(image_path: str) -> dict:
     """
     if not image_path or not image_path.strip():
         return {
-            "success": False,
+            "is_success": False,
             "message": "Error:E50012",
             "estimated_data": {}
         }
@@ -68,16 +40,16 @@ def mock_ai_api(image_path: str) -> dict:
     # 80%の確率で成功レスポンス
     if random.random() < 0.8:
         return {
-            "success": True,
+            "is_success": True,
             "message": "success",
             "estimated_data": {
-                "class": random.randint(0, 9),
+                "class_label": random.randint(0, 9),
                 "confidence": round(random.uniform(0.5, 0.9999), 4)
             }
         }
     else:
         return {
-            "success": False,
+            "is_success": False,
             "message": "Error:E50012",
             "estimated_data": {}
         }
@@ -107,9 +79,9 @@ def analyze():
 
     log = AiAnalysisLog(
         image_path=image_path if image_path else None,
-        success=api_response["success"],
+        is_success=api_response["is_success"],
         message=api_response.get("message"),
-        class_=estimated.get("class"),
+        class_label=estimated.get("class_label"),
         confidence=estimated.get("confidence"),
         request_timestamp=request_timestamp,
         response_timestamp=response_timestamp,
