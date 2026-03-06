@@ -3,12 +3,12 @@
 from flask import Flask, render_template, request, jsonify
 from models.ai_analysis_log import db, AiAnalysisLog
 from services.mock_ai_client import MockAiClient
+from repositories.ai_analysis_log_repository import AiAnalysisLogRepository
 from datetime import datetime
 import os
 
 app = Flask(__name__)
 
-# DB configuration (SQLite)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{os.path.join(BASE_DIR, 'ai_analysis.db')}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -16,11 +16,12 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
 _client = MockAiClient()
+_repo = AiAnalysisLogRepository()
 
 
 @app.route("/")
 def index():
-    logs = AiAnalysisLog.query.order_by(AiAnalysisLog.id.desc()).limit(50).all()
+    logs = _repo.find_latest()
     return render_template("index.html", logs=logs)
 
 
@@ -29,9 +30,7 @@ def analyze():
     image_path = request.form.get("image_path", "").strip()
 
     request_timestamp = datetime.now()
-
     api_response = _client.analyze(image_path)
-
     response_timestamp = datetime.now()
 
     estimated = api_response.get("estimated_data", {})
@@ -45,8 +44,7 @@ def analyze():
         request_timestamp=request_timestamp,
         response_timestamp=response_timestamp,
     )
-    db.session.add(log)
-    db.session.commit()
+    _repo.save(log)
 
     return jsonify({
         "log": log.to_dict(),
@@ -56,7 +54,7 @@ def analyze():
 
 @app.route("/logs")
 def logs():
-    logs = AiAnalysisLog.query.order_by(AiAnalysisLog.id.desc()).limit(50).all()
+    logs = _repo.find_latest()
     return jsonify([l.to_dict() for l in logs])
 
 
