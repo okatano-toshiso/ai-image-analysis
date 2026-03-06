@@ -11,7 +11,6 @@ export function AnalyzeForm({ onAnalyzed }: Props) {
   const [loading, setLoading] = useState(false)
 
   const handleAnalyze = async () => {
-    if (!imagePath.trim()) return
     setLoading(true)
     const formData = new FormData()
     formData.append('image_path', imagePath.trim())
@@ -80,6 +79,18 @@ export function AnalyzeForm({ onAnalyzed }: Props) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Raw JSON Viewer */}
+      {result && (
+        <details className="mt-4">
+          <summary className="cursor-pointer text-xs text-slate-500 hover:text-slate-700 select-none">
+            Raw JSON
+          </summary>
+          <pre className="mt-2 p-4 bg-slate-900 text-green-400 text-xs rounded-lg overflow-x-auto leading-relaxed">
+            {JSON.stringify(result, null, 2)}
+          </pre>
+        </details>
       )}
     </div>
   )
